@@ -5,31 +5,33 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import org.apache.commons.io.FileUtils;
+import com.codepath.simpletodo.adapters.ItemAdapter;
+import com.raizlabs.android.dbflow.list.FlowCursorList;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.Serializable;
 
 public class MainActivity extends AppCompatActivity {
 
-    ArrayList<String> items = new ArrayList<String>();
-    ArrayAdapter<String> itemsAdapter;
+    FlowCursorList<Item> items;
+    ItemAdapter itemsAdapter;
     ListView lvItems;
     private int positionclicked;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         lvItems = (ListView)findViewById(R.id.lvItems);
+        items =  new FlowCursorList.Builder<>(Item.class)
+                .modelQueriable(SQLite.select().from(Item.class))
+                .build();
 
-        readItems();
-        itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+        itemsAdapter = new ItemAdapter(this, items.cursor());
         lvItems.setAdapter(itemsAdapter);
 
         setUpListViewListener();
@@ -41,9 +43,10 @@ public class MainActivity extends AppCompatActivity {
         if(data == null){
             return;
         }
-        items.set(positionclicked, data.getStringExtra(EditActivity.EXTRA_EDITED_NAME));
-        itemsAdapter.notifyDataSetChanged();
-        writeItems();
+        items.refresh();
+        itemsAdapter.swapCursor(items.cursor());
+        //itemsAdapter.notifyDataSetChanged();
+
     }
 
     // Listener for long click on ListView to delete item
@@ -51,22 +54,24 @@ public class MainActivity extends AppCompatActivity {
         lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String itemname = items.get(position);
-                positionclicked = position;
+                Item item = items.getItem(position);
                 Intent intent = new Intent(MainActivity.this, EditActivity.class);
-                intent.putExtra(EditActivity.EXTRA_ITEM_NAME, itemname);
+                intent.putExtra(EditActivity.EXTRA_ITEM, (Serializable) item);
                 startActivityForResult(intent,0);
+                //items.refresh();
+                //itemsAdapter.notifyDataSetChanged();
             }
         }
-
         );
 
         lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                items.remove(position);
-                itemsAdapter.notifyDataSetChanged();
-                writeItems();
+               Item item = items.getItem(position);
+                item.delete();
+                items.refresh();
+                itemsAdapter.swapCursor(items.cursor());
+
                 return true;
             }
         });
@@ -76,30 +81,16 @@ public class MainActivity extends AppCompatActivity {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         String itemText = etNewItem.getText().toString();
         if(itemText != null) {
-            itemsAdapter.add(itemText);
+            Item item = new Item();
+            item.setName(itemText);
+            item.setPriority(Item.Priority.NONE);
+            item.save();
+
+            items.refresh();
+            itemsAdapter.swapCursor(items.cursor());
+          //  itemsAdapter.notifyDataSetChanged();
         }
         etNewItem.setText("");
-        writeItems();
-    }
-
-    private void readItems(){
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-
-        try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
-        } catch (IOException e) {
-            items = new ArrayList<String>();
-        }
-    }
-    private void writeItems(){
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try {
-            FileUtils.writeLines(todoFile, items);
-        } catch (IOException ioe){
-            ioe.printStackTrace();
-        }
     }
 
 

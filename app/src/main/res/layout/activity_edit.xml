@@ -12,34 +12,51 @@
 
 
     <TextView
-        android:text="Edit Item"
+        android:text="Item Name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:id="@+id/txtEditLabel" />
+        android:layout_marginTop="30dp"
+        android:textColor="@color/colorAccent"
+        android:textSize="20sp"
+        android:id="@+id/txtEditNameLabel" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:ems="10"
-        android:layout_below="@+id/txtEditLabel"
+        android:layout_below="@+id/txtEditNameLabel"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_marginTop="14dp"
+        android:padding="10dp"
         android:id="@+id/etEditedName"
-        android:backgroundTint="?android:attr/colorControlHighlight" />
+        android:background="@drawable/edittext_bg"/>
 
+    <TextView
+        android:text="Item Prioirity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/etEditedName"
+        android:layout_marginTop="30dp"
+        android:textColor="@color/colorAccent"
+        android:textSize="20sp"
+        android:id="@+id/txtEditPriorityLabel" />
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/priority"
+        android:id="@+id/spinnerPriority"
+        android:layout_below="@id/txtEditPriorityLabel"/>
     <Button
         android:text="Save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnSaveEdit"
-        android:layout_below="@+id/etEditedName"
+        android:layout_below="@id/spinnerPriority"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+
         android:layout_marginTop="49dp" />
 </RelativeLayout>

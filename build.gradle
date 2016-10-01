@@ -6,16 +6,20 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
-
+        //For using DBFlow - SQLite ORM library - uses annotations to generate java code
+        //based on SQLiteOPenHelper
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
-
+//Because DBFlow3 is still not officially released, you need also add https://jitpack.io
 allprojects {
     repositories {
         jcenter()
+        maven{url "https://jitpack.io" }
     }
+
 }
 
 task clean(type: Delete) {
